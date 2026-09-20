@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.express as px
+from pathlib import Path
 
 # ============================================================
 # PAGE CONFIG
@@ -21,10 +22,10 @@ st.markdown(
 # DATA LOADING
 # ============================================================
 @st.cache_data
-def load_data(uploaded_file):
-    if uploaded_file.name.lower().endswith(".xlsx"):
-        return pd.read_excel(uploaded_file)
-    return pd.read_csv(uploaded_file)
+def load_data():
+    """Load the dataset packaged with this app."""
+    dataset_path = Path(__file__).with_name("flight_price.xlsx")
+    return pd.read_excel(dataset_path)
 
 
 # ============================================================
@@ -121,22 +122,9 @@ def feature_engineering(data):
 
 
 # ============================================================
-# SIDEBAR
+# DATA STATUS
 # ============================================================
-st.sidebar.header("📂 Data")
-
-uploaded_file = st.sidebar.file_uploader(
-    "Upload flight_price.xlsx or CSV",
-    type=["xlsx", "xls", "csv"]
-)
-
-if uploaded_file is None:
-    st.info(
-        "👈 Upload the **flight_price.xlsx** dataset from the sidebar to start."
-    )
-    st.stop()
-
-raw_df = load_data(uploaded_file)
+raw_df = load_data()
 df = feature_engineering(raw_df)
 
 st.sidebar.success(f"{len(df):,} rows loaded")
@@ -437,7 +425,7 @@ with tab2:
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("The uploaded dataset does not contain a 'Class' column, so Class Distribution is skipped.")
+        st.info("The dataset does not contain a 'Class' column, so Class Distribution is skipped.")
 
     st.subheader("Number of Stops")
 
@@ -566,7 +554,7 @@ with tab4:
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("The uploaded dataset does not contain a 'Class' column, so Price by Class is skipped.")
+        st.info("The dataset does not contain a 'Class' column, so Price by Class is skipped.")
 
     st.subheader("Price by Number of Stops")
 
